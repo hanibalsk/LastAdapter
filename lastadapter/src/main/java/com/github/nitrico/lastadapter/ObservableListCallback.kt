@@ -16,16 +16,16 @@
 
 package com.github.nitrico.lastadapter
 
-import android.databinding.ObservableList
+import androidx.databinding.ObservableList
 import android.os.Looper
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import java.lang.ref.WeakReference
 
-class ObservableListCallback<H : RecyclerView.ViewHolder>(adapter: RecyclerView.Adapter<H>)
+class ObservableListCallback<H : androidx.recyclerview.widget.RecyclerView.ViewHolder>(adapter: androidx.recyclerview.widget.RecyclerView.Adapter<H>)
     : ObservableList.OnListChangedCallback<ObservableList<Any>>() {
 
-    private val reference = WeakReference<RecyclerView.Adapter<H>>(adapter)
-    private val adapter: RecyclerView.Adapter<H>?
+    private val reference = WeakReference<androidx.recyclerview.widget.RecyclerView.Adapter<H>>(adapter)
+    private val adapter: androidx.recyclerview.widget.RecyclerView.Adapter<H>?
         get() {
             if (Thread.currentThread() == Looper.getMainLooper().thread) return reference.get()
             else throw IllegalStateException("You must modify the ObservableList on the main thread")

@@ -16,17 +16,17 @@
 
 package com.github.nitrico.lastadapter
 
-import android.databinding.DataBindingUtil
-import android.databinding.ObservableList
-import android.databinding.OnRebindCallback
-import android.databinding.ViewDataBinding
-import android.support.v7.widget.RecyclerView
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ObservableList
+import androidx.databinding.OnRebindCallback
+import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 
 class LastAdapter(private val list: List<Any>,
                   private val variable: Int? = null,
-                  stableIds: Boolean = false) : RecyclerView.Adapter<Holder<ViewDataBinding>>() {
+                  stableIds: Boolean = false) : androidx.recyclerview.widget.RecyclerView.Adapter<Holder<ViewDataBinding>>() {
 
     constructor(list: List<Any>) : this(list, null, false)
     constructor(list: List<Any>, variable: Int) : this(list, variable, false)
@@ -34,8 +34,8 @@ class LastAdapter(private val list: List<Any>,
 
     private val DATA_INVALIDATION = Any()
     private val callback = ObservableListCallback(this)
-    private var recyclerView: RecyclerView? = null
-    private var inflater: LayoutInflater? = null
+    private var recyclerView: androidx.recyclerview.widget.RecyclerView? = null
+    private lateinit var inflater: LayoutInflater
 
     private val map = mutableMapOf<Class<*>, BaseType>()
     private var layoutHandler: LayoutHandler? = null
@@ -83,7 +83,7 @@ class LastAdapter(private val list: List<Any>,
         override fun getItemType(item: Any, position: Int) = f(item, position)
     })
 
-    fun into(recyclerView: RecyclerView) = apply { recyclerView.adapter = this }
+    fun into(recyclerView: androidx.recyclerview.widget.RecyclerView) = apply { recyclerView.adapter = this }
 
 
 
@@ -97,7 +97,7 @@ class LastAdapter(private val list: List<Any>,
                     return
                 }
                 val position = holder.adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
+                if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
                     notifyItemChanged(position, DATA_INVALIDATION)
                 }
             }
@@ -128,7 +128,7 @@ class LastAdapter(private val list: List<Any>,
 
     override fun onViewRecycled(holder: Holder<ViewDataBinding>) {
         val position = holder.adapterPosition
-        if (position != RecyclerView.NO_POSITION && position < list.size) {
+        if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION && position < list.size) {
             val type = getType(position)!!
             if (type is AbsType<*>) {
                 @Suppress("UNCHECKED_CAST")
@@ -152,7 +152,7 @@ class LastAdapter(private val list: List<Any>,
 
     override fun getItemCount() = list.size
 
-    override fun onAttachedToRecyclerView(rv: RecyclerView) {
+    override fun onAttachedToRecyclerView(rv: androidx.recyclerview.widget.RecyclerView) {
         if (recyclerView == null && list is ObservableList) {
             list.addOnListChangedCallback(callback)
         }
@@ -160,7 +160,7 @@ class LastAdapter(private val list: List<Any>,
         inflater = LayoutInflater.from(rv.context)
     }
 
-    override fun onDetachedFromRecyclerView(rv: RecyclerView) {
+    override fun onDetachedFromRecyclerView(rv: androidx.recyclerview.widget.RecyclerView) {
         if (recyclerView != null && list is ObservableList) {
             list.removeOnListChangedCallback(callback)
         }

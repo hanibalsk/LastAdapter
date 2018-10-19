@@ -16,7 +16,7 @@
 
 package com.github.nitrico.lastadapter
 
-import android.databinding.ViewDataBinding
+import androidx.databinding.ViewDataBinding
 
 open class BaseType
 @JvmOverloads constructor(open val layout: Int, open val variable: Int? = null)

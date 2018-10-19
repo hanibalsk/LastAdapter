@@ -1,9 +1,9 @@
 package com.github.nitrico.lastadapter_sample.ui
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
 import android.view.Menu
 import android.view.MenuItem
 import com.github.nitrico.lastadapter_sample.data.Data
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    class ViewPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+    class ViewPagerAdapter(fm: androidx.fragment.app.FragmentManager) : androidx.fragment.app.FragmentPagerAdapter(fm) {
         override fun getCount() = 2
         override fun getItem(i: Int) = if (i == 0) KotlinListFragment() else JavaListFragment()
         override fun getPageTitle(i: Int) = if (i == 0) "Kotlin" else "Java"
