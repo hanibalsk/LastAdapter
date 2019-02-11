@@ -17,11 +17,10 @@ android {
 }
 
 dependencies {
-    compile "androidx.appcompat:appcompat:$versions.androidx"
-    compile "androidx.cardview:cardview:$versions.androidx"
-    compile "com.google.android.material:material:$versions.androidx"
-    compile "androidx.recyclerview:recyclerview:$versions.androidx"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
-    kapt 'androidx.databinding:databinding-compiler:3.3.0-alpha13'
-    compile project(":lastadapter")
+    implementation "androidx.appcompat:appcompat:1.0.2"
+    implementation "androidx.cardview:cardview:$versions.androidx"
+    implementation "com.google.android.material:material:$versions.androidx"
+    implementation "androidx.recyclerview:recyclerview:$versions.androidx"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
+    implementation project(":lastadapter")
 }
