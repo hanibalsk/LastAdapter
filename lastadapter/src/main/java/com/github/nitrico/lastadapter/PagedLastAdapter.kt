@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UNCHECKED_CAST")
+
 package com.github.nitrico.lastadapter
 
 import android.view.LayoutInflater
@@ -25,15 +27,15 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
-class PagedLastAdapter(
-        diffCallback: DiffUtil.ItemCallback<Any>,
+class PagedLastAdapter<Item: Any>(
+        diffCallback: DiffUtil.ItemCallback<Item>,
         private val variable: Int? = null,
         stableIds: Boolean = false
-) : PagedListAdapter<Any, Holder<ViewDataBinding>>(diffCallback) {
+) : PagedListAdapter<Item, Holder<ViewDataBinding>>(diffCallback) {
 
-    constructor(diffCallback: DiffUtil.ItemCallback<Any>) : this(diffCallback,null, false)
-    constructor(diffCallback: DiffUtil.ItemCallback<Any>, variable: Int) : this(diffCallback, variable, false)
-    constructor(diffCallback: DiffUtil.ItemCallback<Any>, stableIds: Boolean) : this(diffCallback, null, stableIds)
+    constructor(diffCallback: DiffUtil.ItemCallback<Item>) : this(diffCallback,null, false)
+    constructor(diffCallback: DiffUtil.ItemCallback<Item>, variable: Int) : this(diffCallback, variable, false)
+    constructor(diffCallback: DiffUtil.ItemCallback<Item>, stableIds: Boolean) : this(diffCallback, null, stableIds)
 
     private val DATA_INVALIDATION = Any()
     private var recyclerView: RecyclerView? = null
@@ -72,12 +74,12 @@ class PagedLastAdapter(
         }
     }
 
-    inline fun layout(crossinline f: (Any, Int) -> Int) = handler(object : LayoutHandler {
-        override fun getItemLayout(item: Any, position: Int) = f(item, position)
+    inline fun layout(crossinline f: (Item, Int) -> Int) = handler(object : LayoutHandler {
+        override fun getItemLayout(item: Any, position: Int) = f(item as Item, position)
     })
 
-    inline fun type(crossinline f: (Any, Int) -> AbsType<*>?) = handler(object : TypeHandler {
-        override fun getItemType(item: Any, position: Int) = f(item, position)
+    inline fun type(crossinline f: (Item, Int) -> AbsType<*>?) = handler(object : TypeHandler {
+        override fun getItemType(item: Any, position: Int) = f(item as Item, position)
     })
 
     fun into(recyclerView: RecyclerView) = apply { recyclerView.adapter = this }
