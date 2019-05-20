@@ -19,7 +19,6 @@ package com.github.nitrico.lastadapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.ObservableList
 import androidx.databinding.OnRebindCallback
 import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
@@ -28,17 +27,15 @@ import androidx.recyclerview.widget.RecyclerView
 
 class PagedLastAdapter(
         diffCallback: DiffUtil.ItemCallback<Any>,
-        private val list: List<Any>,
         private val variable: Int? = null,
         stableIds: Boolean = false
 ) : PagedListAdapter<Any, Holder<ViewDataBinding>>(diffCallback) {
 
-    constructor(diffCallback: DiffUtil.ItemCallback<Any>, list: List<Any>) : this(diffCallback, list, null, false)
-    constructor(diffCallback: DiffUtil.ItemCallback<Any>, list: List<Any>, variable: Int) : this(diffCallback, list, variable, false)
-    constructor(diffCallback: DiffUtil.ItemCallback<Any>, list: List<Any>, stableIds: Boolean) : this(diffCallback, list, null, stableIds)
+    constructor(diffCallback: DiffUtil.ItemCallback<Any>) : this(diffCallback,null, false)
+    constructor(diffCallback: DiffUtil.ItemCallback<Any>, variable: Int) : this(diffCallback, variable, false)
+    constructor(diffCallback: DiffUtil.ItemCallback<Any>, stableIds: Boolean) : this(diffCallback, null, stableIds)
 
     private val DATA_INVALIDATION = Any()
-    private val callback = ObservableListCallback(this)
     private var recyclerView: RecyclerView? = null
     private lateinit var inflater: LayoutInflater
 
@@ -83,8 +80,7 @@ class PagedLastAdapter(
         override fun getItemType(item: Any, position: Int) = f(item, position)
     })
 
-    fun into(recyclerView: androidx.recyclerview.widget.RecyclerView) = apply { recyclerView.adapter = this }
-
+    fun into(recyclerView: RecyclerView) = apply { recyclerView.adapter = this }
 
     override fun onCreateViewHolder(view: ViewGroup, viewType: Int): Holder<ViewDataBinding> {
         val binding = DataBindingUtil.inflate<ViewDataBinding>(inflater, viewType, view, false)
@@ -94,11 +90,11 @@ class PagedLastAdapter(
                     ?: false
 
             override fun onCanceled(binding: ViewDataBinding) {
-                if (recyclerView?.isComputingLayout ?: true) {
+                if (recyclerView?.isComputingLayout != false) {
                     return
                 }
                 val position = holder.adapterPosition
-                if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                if (position != RecyclerView.NO_POSITION) {
                     notifyItemChanged(position, DATA_INVALIDATION)
                 }
             }
@@ -108,7 +104,7 @@ class PagedLastAdapter(
 
     override fun onBindViewHolder(holder: Holder<ViewDataBinding>, position: Int) {
         val type = getType(position)!!
-        holder.binding.setVariable(getVariable(type), list[position])
+        holder.binding.setVariable(getVariable(type), getItem(position))
         holder.binding.executePendingBindings()
         @Suppress("UNCHECKED_CAST")
         if (type is AbsType<*>) {
@@ -129,7 +125,7 @@ class PagedLastAdapter(
 
     override fun onViewRecycled(holder: Holder<ViewDataBinding>) {
         val position = holder.adapterPosition
-        if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION && position < list.size) {
+        if (position != RecyclerView.NO_POSITION && position < itemCount) {
             val type = getType(position)!!
             if (type is AbsType<*>) {
                 @Suppress("UNCHECKED_CAST")
@@ -140,41 +136,34 @@ class PagedLastAdapter(
 
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
-            val item = list[position]
+            val item = getItem(position)
             if (item is StableId) {
                 return item.stableId
             } else {
-                throw IllegalStateException("${item.javaClass.simpleName} must implement StableId interface.")
+                throw IllegalStateException("${item?.javaClass?.simpleName} must implement StableId interface.")
             }
         } else {
             return super.getItemId(position)
         }
     }
 
-    override fun getItemCount() = list.size
-
-    override fun onAttachedToRecyclerView(rv: androidx.recyclerview.widget.RecyclerView) {
-        if (recyclerView == null && list is ObservableList) {
-            list.addOnListChangedCallback(callback)
-        }
+    override fun onAttachedToRecyclerView(rv: RecyclerView) {
         recyclerView = rv
         inflater = LayoutInflater.from(rv.context)
     }
 
-    override fun onDetachedFromRecyclerView(rv: androidx.recyclerview.widget.RecyclerView) {
-        if (recyclerView != null && list is ObservableList) {
-            list.removeOnListChangedCallback(callback)
-        }
+    override fun onDetachedFromRecyclerView(rv: RecyclerView) {
+
         recyclerView = null
     }
 
-    override fun getItemViewType(position: Int) = layoutHandler?.getItemLayout(list[position], position)
-            ?: typeHandler?.getItemType(list[position], position)?.layout
+    override fun getItemViewType(position: Int) = layoutHandler?.getItemLayout(getItem(position)!!, position)
+            ?: typeHandler?.getItemType(getItem(position)!!, position)?.layout
             ?: getType(position)?.layout
-            ?: throw RuntimeException("Invalid object at position $position: ${list[position].javaClass}")
+            ?: throw RuntimeException("Invalid object at position $position: ${getItem(position)?.javaClass}")
 
-    private fun getType(position: Int) = typeHandler?.getItemType(list[position], position)
-            ?: map[list[position].javaClass]
+    private fun getType(position: Int) = typeHandler?.getItemType(getItem(position)!!, position)
+            ?: map[getItem(position)!!.javaClass]
 
     private fun getVariable(type: BaseType) = type.variable
             ?: variable
