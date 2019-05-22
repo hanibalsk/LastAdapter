@@ -44,6 +44,7 @@ class PagedLastAdapter<Item: Any>(
     private val map = mutableMapOf<Class<*>, BaseType>()
     private var layoutHandler: LayoutHandler? = null
     private var typeHandler: TypeHandler? = null
+    private var preloadItem: BaseType? = null
 
     init {
         setHasStableIds(stableIds)
@@ -51,6 +52,7 @@ class PagedLastAdapter<Item: Any>(
 
     @JvmOverloads
     fun <T : Any> map(clazz: Class<T>, layout: Int, variable: Int? = null) = apply { map[clazz] = BaseType(layout, variable) }
+    fun mapPreload(layout: Int) = apply { preloadItem = BaseType(layout, isPreload = true) }
 
     inline fun <reified T : Any> map(layout: Int, variable: Int? = null) = map(T::class.java, layout, variable)
 
@@ -106,8 +108,11 @@ class PagedLastAdapter<Item: Any>(
 
     override fun onBindViewHolder(holder: Holder<ViewDataBinding>, position: Int) {
         val type = getType(position)!!
-        holder.binding.setVariable(getVariable(type), getItem(position))
-        holder.binding.executePendingBindings()
+
+        if (!type.isPreload) {
+            holder.binding.setVariable(getVariable(type), getItem(position))
+            holder.binding.executePendingBindings()
+        }
         @Suppress("UNCHECKED_CAST")
         if (type is AbsType<*>) {
             if (!holder.created) {
@@ -166,6 +171,7 @@ class PagedLastAdapter<Item: Any>(
 
     private fun getType(position: Int) = typeHandler?.getItemType(getItem(position)!!, position)
             ?: getItem(position)?.let { map[it.javaClass] }
+            ?: preloadItem
 
     private fun getVariable(type: BaseType) = type.variable
             ?: variable

@@ -19,7 +19,7 @@ package com.github.nitrico.lastadapter
 import androidx.databinding.ViewDataBinding
 
 open class BaseType
-@JvmOverloads constructor(open val layout: Int, open val variable: Int? = null)
+@JvmOverloads constructor(open val layout: Int, open val variable: Int? = null, open val isPreload: Boolean = false)
 
 @Suppress("unused")
 abstract class AbsType<B : ViewDataBinding>
