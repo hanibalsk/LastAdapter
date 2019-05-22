@@ -162,10 +162,10 @@ class PagedLastAdapter<Item: Any>(
     override fun getItemViewType(position: Int) = layoutHandler?.getItemLayout(getItem(position)!!, position)
             ?: typeHandler?.getItemType(getItem(position)!!, position)?.layout
             ?: getType(position)?.layout
-            ?: throw RuntimeException("Invalid object at position $position: ${getItem(position)?.javaClass}")
+            ?: throw RuntimeException("Invalid object at position $position: ${getItem(position)?.javaClass}  itemCount=>$itemCount")
 
     private fun getType(position: Int) = typeHandler?.getItemType(getItem(position)!!, position)
-            ?: map[getItem(position)!!.javaClass]
+            ?: getItem(position)?.let { map[it.javaClass] }
 
     private fun getVariable(type: BaseType) = type.variable
             ?: variable
