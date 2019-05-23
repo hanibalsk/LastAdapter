@@ -24,6 +24,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.OnRebindCallback
 import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
@@ -39,12 +41,14 @@ class PagedLastAdapter<Item: Any>(
 
     private val DATA_INVALIDATION = Any()
     private var recyclerView: RecyclerView? = null
+    private var selectionTracker: SelectionTracker<Any>? = null
     private lateinit var inflater: LayoutInflater
 
     private val map = mutableMapOf<Class<*>, BaseType>()
     private var layoutHandler: LayoutHandler? = null
     private var typeHandler: TypeHandler? = null
     private var preloadItem: BaseType? = null
+    private var detailFactory: (() -> ItemDetailsLookup.ItemDetails<Any>)? = null
 
     init {
         setHasStableIds(stableIds)
@@ -85,10 +89,18 @@ class PagedLastAdapter<Item: Any>(
     })
 
     fun into(recyclerView: RecyclerView) = apply { recyclerView.adapter = this }
+    fun selection(selectionTracker: SelectionTracker<Any>) {
+        this.selectionTracker = selectionTracker
+    }
+
+    fun detailFactory(detailFactory: () -> ItemDetailsLookup.ItemDetails<Any>) {
+        this.detailFactory = detailFactory
+    }
 
     override fun onCreateViewHolder(view: ViewGroup, viewType: Int): Holder<ViewDataBinding> {
         val binding = DataBindingUtil.inflate<ViewDataBinding>(inflater, viewType, view, false)
-        val holder = Holder(binding)
+        val holder = Holder(binding, getItemDetail())
+
         binding.addOnRebindCallback(object : OnRebindCallback<ViewDataBinding>() {
             override fun onPreBind(binding: ViewDataBinding) = recyclerView?.isComputingLayout
                     ?: false
@@ -160,7 +172,6 @@ class PagedLastAdapter<Item: Any>(
     }
 
     override fun onDetachedFromRecyclerView(rv: RecyclerView) {
-
         recyclerView = null
     }
 
@@ -176,6 +187,10 @@ class PagedLastAdapter<Item: Any>(
     private fun getVariable(type: BaseType) = type.variable
             ?: variable
             ?: throw IllegalStateException("No variable specified for type ${type.javaClass.simpleName}")
+
+    private fun getItemDetail(): ItemDetailsLookup.ItemDetails<Any>? {
+        return detailFactory?.invoke()
+    }
 
     private fun isForDataBinding(payloads: List<Any>): Boolean {
         if (payloads.isEmpty()) {
