@@ -169,6 +169,8 @@ class PagedLastAdapter<Item : Any>(
         }
     }
 
+    fun getAdapterItem(position: Int) = getItem(position)
+
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
             val item = getItem(position)
