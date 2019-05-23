@@ -95,7 +95,7 @@ class PagedLastAdapter<Item : Any>(
     fun into(recyclerView: RecyclerView) = apply { recyclerView.adapter = this }
 
     fun <T> selectionTracker(factory: (PagedLastAdapter<Item>) -> SelectionTracker<T>) = apply {
-        this.selectionTracker = selectionTracker as SelectionTracker<Any>
+        this.selectionTracker = factory(this) as SelectionTracker<Any>
     }
 
     fun <T> detailFactory(detailFactory: () -> ItemDetails<T>) = apply {
