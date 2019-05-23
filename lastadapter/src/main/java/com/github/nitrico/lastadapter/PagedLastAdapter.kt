@@ -24,18 +24,17 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.OnRebindCallback
 import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
-import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
-class PagedLastAdapter<Item: Any>(
+class PagedLastAdapter<Item : Any>(
         diffCallback: DiffUtil.ItemCallback<Item>,
         private val variable: Int? = null,
         stableIds: Boolean = false
 ) : PagedListAdapter<Item, Holder<ViewDataBinding>>(diffCallback) {
 
-    constructor(diffCallback: DiffUtil.ItemCallback<Item>) : this(diffCallback,null, false)
+    constructor(diffCallback: DiffUtil.ItemCallback<Item>) : this(diffCallback, null, false)
     constructor(diffCallback: DiffUtil.ItemCallback<Item>, variable: Int) : this(diffCallback, variable, false)
     constructor(diffCallback: DiffUtil.ItemCallback<Item>, stableIds: Boolean) : this(diffCallback, null, stableIds)
 
@@ -49,6 +48,7 @@ class PagedLastAdapter<Item: Any>(
     private var typeHandler: TypeHandler? = null
     private var preloadItem: BaseType? = null
     private var detailFactory: (() -> ItemDetails<Any>)? = null
+    private var selectionVariable: Int? = null
 
     init {
         setHasStableIds(stableIds)
@@ -56,6 +56,7 @@ class PagedLastAdapter<Item: Any>(
 
     @JvmOverloads
     fun <T : Any> map(clazz: Class<T>, layout: Int, variable: Int? = null) = apply { map[clazz] = BaseType(layout, variable) }
+
     fun mapPreload(layout: Int) = apply { preloadItem = BaseType(layout, isPreload = true) }
 
     inline fun <reified T : Any> map(layout: Int, variable: Int? = null) = map(T::class.java, layout, variable)
@@ -89,12 +90,16 @@ class PagedLastAdapter<Item: Any>(
     })
 
     fun into(recyclerView: RecyclerView) = apply { recyclerView.adapter = this }
-    fun selectionTracker(selectionTracker: SelectionTracker<Any>) {
+    fun selectionTracker(selectionTracker: SelectionTracker<Any>) = apply {
         this.selectionTracker = selectionTracker
     }
 
-    fun detailFactory(detailFactory: () -> ItemDetails<Any>) {
+    fun detailFactory(detailFactory: () -> ItemDetails<Any>) = apply {
         this.detailFactory = detailFactory
+    }
+
+    fun selectionVariable(selectionVariable: Int) = apply {
+        this.selectionVariable = selectionVariable
     }
 
     override fun onCreateViewHolder(view: ViewGroup, viewType: Int): Holder<ViewDataBinding> {
@@ -125,6 +130,15 @@ class PagedLastAdapter<Item: Any>(
 
         if (!type.isPreload) {
             holder.binding.setVariable(getVariable(type), getItem(position))
+
+            selectionVariable?.let {
+                holder.detail?.selectionKey?.run {
+                    val isSelected = selectionTracker?.isSelected(this)
+                            ?: throw IllegalStateException("Selection tracker is not set")
+                    holder.binding.setVariable(it, isSelected)
+                } ?: throw IllegalStateException("Detail factory is not set")
+            }
+
             holder.binding.executePendingBindings()
         }
         @Suppress("UNCHECKED_CAST")
