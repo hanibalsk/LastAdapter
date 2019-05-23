@@ -50,6 +50,9 @@ class PagedLastAdapter<Item : Any>(
     private var detailFactory: (() -> ItemDetails<Any>)? = null
     private var selectionVariable: Int? = null
 
+    fun <T> getSelectionTracker(): SelectionTracker<T> = selectionTracker as? SelectionTracker<T>
+            ?: throw IllegalStateException("selectionTracker is not created")
+
     init {
         setHasStableIds(stableIds)
     }
