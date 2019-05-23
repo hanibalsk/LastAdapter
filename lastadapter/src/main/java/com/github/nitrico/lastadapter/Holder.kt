@@ -20,6 +20,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.widget.RecyclerView
 
-open class Holder<B : ViewDataBinding>(val binding: B, val detail: ItemDetailsLookup.ItemDetails<Any>? = null) : RecyclerView.ViewHolder(binding.root) {
+open class Holder<B : ViewDataBinding>(val binding: B, val detail: ItemDetails<Any>? = null) : RecyclerView.ViewHolder(binding.root) {
     internal var created = false
 }

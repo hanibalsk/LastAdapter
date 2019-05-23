@@ -48,7 +48,7 @@ class PagedLastAdapter<Item: Any>(
     private var layoutHandler: LayoutHandler? = null
     private var typeHandler: TypeHandler? = null
     private var preloadItem: BaseType? = null
-    private var detailFactory: (() -> ItemDetailsLookup.ItemDetails<Any>)? = null
+    private var detailFactory: (() -> ItemDetails<Any>)? = null
 
     init {
         setHasStableIds(stableIds)
@@ -89,11 +89,11 @@ class PagedLastAdapter<Item: Any>(
     })
 
     fun into(recyclerView: RecyclerView) = apply { recyclerView.adapter = this }
-    fun selection(selectionTracker: SelectionTracker<Any>) {
+    fun selectionTracker(selectionTracker: SelectionTracker<Any>) {
         this.selectionTracker = selectionTracker
     }
 
-    fun detailFactory(detailFactory: () -> ItemDetailsLookup.ItemDetails<Any>) {
+    fun detailFactory(detailFactory: () -> ItemDetails<Any>) {
         this.detailFactory = detailFactory
     }
 
@@ -120,6 +120,8 @@ class PagedLastAdapter<Item: Any>(
 
     override fun onBindViewHolder(holder: Holder<ViewDataBinding>, position: Int) {
         val type = getType(position)!!
+
+        holder.detail?.itemPosition = position
 
         if (!type.isPreload) {
             holder.binding.setVariable(getVariable(type), getItem(position))
@@ -188,7 +190,7 @@ class PagedLastAdapter<Item: Any>(
             ?: variable
             ?: throw IllegalStateException("No variable specified for type ${type.javaClass.simpleName}")
 
-    private fun getItemDetail(): ItemDetailsLookup.ItemDetails<Any>? {
+    private fun getItemDetail(): ItemDetails<Any>? {
         return detailFactory?.invoke()
     }
 
