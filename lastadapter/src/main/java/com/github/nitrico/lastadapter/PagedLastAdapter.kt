@@ -49,6 +49,7 @@ class PagedLastAdapter<Item : Any>(
     private var preloadItem: BaseType? = null
     private var detailFactory: (() -> ItemDetails<Any>)? = null
     private var selectionVariable: Int? = null
+    private var globalViewModel: Pair<Int, Any>? = null
 
     fun <T> getSelectionTracker(): SelectionTracker<T> = selectionTracker as? SelectionTracker<T>
             ?: throw IllegalStateException("selectionTracker is not created")
@@ -106,6 +107,11 @@ class PagedLastAdapter<Item : Any>(
         this.selectionVariable = selectionVariable
     }
 
+    fun <T> globalViewModel(variable: Int,data: T) = apply {
+        this.globalViewModel = variable to data as Any
+    }
+
+
     override fun onCreateViewHolder(view: ViewGroup, viewType: Int): Holder<ViewDataBinding> {
         val binding = DataBindingUtil.inflate<ViewDataBinding>(inflater, viewType, view, false)
         val holder = Holder(binding, getItemDetail())
@@ -141,6 +147,10 @@ class PagedLastAdapter<Item : Any>(
                             ?: throw IllegalStateException("Selection tracker is not set")
                     holder.binding.setVariable(it, isSelected)
                 } ?: throw IllegalStateException("Detail factory is not set")
+            }
+
+            globalViewModel?.run {
+                holder.binding.setVariable(first, second)
             }
 
             holder.binding.executePendingBindings()
