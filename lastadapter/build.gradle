@@ -12,6 +12,7 @@ android {
 
 dependencies {
     implementation "androidx.recyclerview:recyclerview:$versions.androidx"
+    implementation "androidx.recyclerview:recyclerview-selection:$versions.androidx"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
     implementation "androidx.paging:paging-runtime-ktx:$versions.paging"
 }

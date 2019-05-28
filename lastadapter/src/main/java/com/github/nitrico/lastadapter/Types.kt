@@ -17,6 +17,7 @@
 package com.github.nitrico.lastadapter
 
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.selection.ItemDetailsLookup
 
 open class BaseType
 @JvmOverloads constructor(open val layout: Int, open val variable: Int? = null, open val isPreload: Boolean = false)
@@ -47,3 +48,9 @@ open class Type<B : ViewDataBinding>
 }
 
 typealias Action<B> = (Holder<B>) -> Unit
+
+abstract class ItemDetails<Key> : ItemDetailsLookup.ItemDetails<Key>() {
+    var itemPosition: Int = 0
+
+    override fun getPosition(): Int = itemPosition
+}

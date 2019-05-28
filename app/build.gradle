@@ -21,6 +21,7 @@ dependencies {
     implementation "androidx.cardview:cardview:$versions.androidx"
     implementation "com.google.android.material:material:$versions.androidx"
     implementation "androidx.recyclerview:recyclerview:$versions.androidx"
+    implementation "androidx.recyclerview:recyclerview-selection:$versions.androidx"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
     implementation project(":lastadapter")
 }
